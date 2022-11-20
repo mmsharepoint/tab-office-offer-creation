@@ -1,4 +1,7 @@
-
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$siteUrl)
+    
 Connect-PnPOnline -Url $siteUrl -Interactive
 
 Set-PnPSite -NoScriptSite $false
