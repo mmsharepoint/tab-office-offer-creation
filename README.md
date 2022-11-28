@@ -53,15 +53,24 @@ Version|Date|Author|Comments
         .\templates\deploy.ps1 -siteUrl <YourFullSiteUrl>
     
     - Put the same site url to your .env as SiteUrl=
-
+- You will need to register an app in Azure AD [also described here](https://mmsharepoint.wordpress.com/2021/09/07/meeting-apps-in-microsoft-teams-1-pre-meeting/#appreg)
+  - with client secret
+  - with **delegated** SharePoint permissions AllSires.Write 
+  - With exposed Api "access_as_user" and App ID Uri api://<NGrok-Url>/<App ID>
+  - With the client IDs for Teams App and Teams Web App 1fec8e78-bce4-4aaf-ab1b-5451cc387264 and 5e3ce6c0-2b1f-4285-8d4b-75ee78787346
+  - Also With the client IDs for Office Apps Office web	4765445b-32c6-49b0-83e6-1d93765276ca, Office desktop 0ec893e0-5785-4de6-99da-4ed124e5296c,
+Outlook desktop, mobile	d3590ed6-52b3-4102-aeff-aad2292ab01c, Outlook web bc59ab01-8403-45c6-8796-ac3ef710b3e3
+- Also add the app ID and its secret to .env (taken from .env-sample) as TAB_APP_ID= and 
+    - add the secret to TAB_APP_SECRET"    ```
 
 ## Features
 
 This is a Teams personal Tab app to act as a Microsoft 365 across application (Teams, Outlook, Office)
 * Using SSO with Teams JS SDK 2.0
 * Using O-B-O flow secure and totally in backend to retrieve and store data via Microsoft SharePoint
+* Using SharePoint Rest API inside NodeJS application
 * [Extend Teams apps across Microsoft 365](https://docs.microsoft.com/en-us/microsoftteams/platform/m365-apps/overview?WT.mc_id=M365-MVP-5004617)
-* [Use FluentUI React Northstar List and Dialog](https://fluentsite.z22.web.core.windows.net/)
+* [Use FluentUI React Northstar Input, Datepicker, Dropdown, DropdownItem, DropdownItemProps, DropdownProps, Loader, TextArea](https://fluentsite.z22.web.core.windows.net/)
 
 ## Getting started with Microsoft Teams Apps development
 
@@ -80,7 +89,7 @@ For further details see the [Yo Teams documentation](https://github.com/PnP/gene
 
 ## Building the app
 
-The application is built using the `build` Gulp task.
+The application is built using the `build` Gulp task. 
 
 ``` bash
 npm i -g gulp-cli
