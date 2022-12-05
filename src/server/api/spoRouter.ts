@@ -14,16 +14,16 @@ export const spoRouter = (options: any): express.Router => {
 
   // Set up the Bearer Strategy
   const bearerStrategy = new BearerStrategy({
-      identityMetadata: "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration",
-      clientID: process.env.TAB_APP_ID as string,
-      audience: `api://${process.env.PUBLIC_HOSTNAME}/${process.env.TAB_APP_ID}`,
-      loggingLevel: "warn",
-      validateIssuer: false,
-      passReqToCallback: false
+    identityMetadata: "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration",
+    clientID: process.env.TAB_APP_ID as string,
+    audience: `api://${process.env.PUBLIC_HOSTNAME}/${process.env.TAB_APP_ID}`,
+    loggingLevel: "warn",
+    validateIssuer: false,
+    passReqToCallback: false
   } as IBearerStrategyOption,
-      (token: ITokenPayload, done: VerifyCallback) => {
-          done(null, { tid: token.tid, name: token.name, upn: token.upn }, token);
-      }
+    (token: ITokenPayload, done: VerifyCallback) => {
+        done(null, { tid: token.tid, name: token.name, upn: token.upn }, token);
+    }
   );
   const pass = new passport.Passport();
   router.use(pass.initialize());
@@ -40,12 +40,12 @@ export const spoRouter = (options: any): express.Router => {
     return new Promise((resolve, reject) => {
       const url = `https://login.microsoftonline.com/${tenantName}/oauth2/v2.0/token`;
       const params = {
-          client_id: process.env.TAB_APP_ID,
-          client_secret: process.env.TAB_APP_SECRET,
-          grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-          assertion: token,
-          requested_token_use: "on_behalf_of",
-          scope: scope
+        client_id: process.env.TAB_APP_ID,
+        client_secret: process.env.TAB_APP_SECRET,
+        grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        assertion: token,
+        requested_token_use: "on_behalf_of",
+        scope: scope
       };
 
       Axios.post(url,
@@ -55,15 +55,15 @@ export const spoRouter = (options: any): express.Router => {
             "Content-Type": "application/x-www-form-urlencoded"
         }
       }).then(result => {
-          if (result.status !== 200) {
-            reject(result);
-          } else {
-            resolve({accessToken: result.data.access_token});
-          }
+        if (result.status !== 200) {
+          reject(result);
+        } else {
+          resolve({accessToken: result.data.access_token});
+        }
       }).catch(err => {
-          // error code 400 likely means you have not done an admin consent on the app
-          log(err);
-          reject(err);
+        // error code 400 likely means you have not done an admin consent on the app
+        log(err);
+        reject(err);
       });
     });
   };
@@ -176,11 +176,11 @@ export const spoRouter = (options: any): express.Router => {
 
         res.send(fileListItem);
       } catch (err) {
-          if (err.status) {
-              res.status(err.status).send(err.message);
-          } else {
-              res.status(500).send(err);
-          }
+        if (err.status) {
+            res.status(err.status).send(err.message);
+        } else {
+            res.status(500).send(err);
+        }
       }
   });
        
