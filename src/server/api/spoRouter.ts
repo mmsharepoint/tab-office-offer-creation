@@ -116,7 +116,7 @@ export const spoRouter = (options: any): express.Router => {
       })
       .then(response => {
         const itemID = response.data.ID;
-        return { id: itemID, type: response.data["odata.type"] };      
+        return { id: itemID, type: response.data["odata.type"] }; // ServerRedirectedEmbedUri  
       }).catch(err => {
         log(err);
       });
@@ -157,7 +157,6 @@ export const spoRouter = (options: any): express.Router => {
     "/createoffer",
     pass.authenticate("oauth-bearer", { session: false }),
     async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-      const user: any = req.user;
       const teamSiteDomain = req.body.domain;
       const teamSiteUrl = process.env.SiteUrl!;
       const teamSiteRelativeUrl = teamSiteUrl.split(teamSiteDomain)[1];
@@ -171,10 +170,11 @@ export const spoRouter = (options: any): express.Router => {
               
         const tmplFile = await loadTemplate(accessToken, offer, teamSiteUrl, teamSiteRelativeUrl);
         const newFile = await createOfferFile(accessToken, teamSiteUrl, teamSiteRelativeUrl, tmplFile);
+        const newFileUrl = teamSiteUrl + newFile.ServerRelativeUrl;
         const fileListItemInfo = await getFileListItem(accessToken, teamSiteUrl, teamSiteRelativeUrl, tmplFile.name);
         const fileListItem = await updateFileListItem(accessToken, teamSiteUrl, teamSiteRelativeUrl, fileListItemInfo.id, fileListItemInfo.type, offer);
 
-        res.send(fileListItem);
+        res.send({ item: fileListItem, fileUrl: newFileUrl });
       } catch (err) {
         if (err.status) {
             res.status(err.status).send(err.message);

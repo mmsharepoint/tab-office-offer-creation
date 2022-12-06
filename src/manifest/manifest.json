@@ -15,8 +15,8 @@
     "full": "Offer Creation (yoteams)"
   },
   "description": {
-    "short": "TODO: add short description here",
-    "full": "TODO: add full description here"
+    "short": "A personal M365 app to create custom offer documents",
+    "full": "A personal Microsoft 365 app to create custom offer documents"
   },
   "icons": {
     "outline": "icon-outline.png",

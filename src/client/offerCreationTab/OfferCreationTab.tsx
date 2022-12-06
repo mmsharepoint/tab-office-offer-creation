@@ -13,6 +13,8 @@ import{ IOffer } from '../../model/IOffer';
 export const OfferCreationTab = () => {
   const [{ inTeams, theme, context }] = useTeams();
   const [idToken, setIdToken] = useState<string>();
+  const [offerCreated, setOfferCreated] = useState<boolean>(false);
+  const [offerFileUrl, setOfferFileUrl] = useState<string>("");
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
 
   const createOffer = (offer: IOffer) => {
@@ -28,7 +30,10 @@ export const OfferCreationTab = () => {
                     Authorization: `Bearer ${idToken}`
                   }
       }).then(result => {
-        console.log(result);        
+        console.log(result.data);
+        if (result.data.fileUrl) {
+          setOfferCreated(true);
+        }     
       })
       .catch((error) => {
         console.log(error);
@@ -67,18 +72,18 @@ export const OfferCreationTab = () => {
                 padding: ".8rem 0 .8rem .5rem"
             }}>
                 <Flex.Item>
-                    <Header content="This is your tab" />
+                  <Header content="This is your tab" />
                 </Flex.Item>
                 <Flex.Item>
-                    <OfferCreationForm createOffer={createOffer} />
+                  <OfferCreationForm offerCreated={offerCreated} createOffer={createOffer} />
                 </Flex.Item>
                 <Flex.Item>
-                    <div>{showSpinner && <Loader label="Creating document" labelPosition="above" />}</div>
+                  <div>{showSpinner && <Loader label="Creating document" labelPosition="above" />}</div>
                 </Flex.Item>
                 <Flex.Item styles={{
                     padding: ".8rem 0 .8rem .5rem"
                 }}>
-                    <Text size="smaller" content="(C) Copyright Markus Moeller" />
+                  <div>{offerCreated && <span><Text size="larger" content="Your offer document is created and can be found" /><a href={offerFileUrl}>here</a></span>}</div>
                 </Flex.Item>
             </Flex>
         </Provider>
