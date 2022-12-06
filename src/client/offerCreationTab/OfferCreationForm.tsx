@@ -51,7 +51,6 @@ export const OfferCreationForm = (props: IOfferCreationFormProps) => {
       price: price ? price : 0,
       vat: vat ? vat : 0
     };
-    console.log(newOffer);
     props.createOffer(newOffer);
   }, [title, description, date, price,vat]);
 
@@ -73,7 +72,7 @@ export const OfferCreationForm = (props: IOfferCreationFormProps) => {
       </div>
       <div>        
         <Input label="Price" 
-                value={title}
+                value={price}
                 type="number"
                 step=".01"
                 onChange={(e, data) => {
@@ -91,7 +90,6 @@ export const OfferCreationForm = (props: IOfferCreationFormProps) => {
           items={vatItems}
           placeholder="Select VAT"
           onChange={onOfferingVATChange}
-          // onActiveSelectedIndexChange={(e, data: DropdownProps) => { console.log(data)}}
         />
       </div>
       <div>
