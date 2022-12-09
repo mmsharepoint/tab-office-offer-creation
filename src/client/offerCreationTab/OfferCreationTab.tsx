@@ -30,7 +30,6 @@ export const OfferCreationTab = () => {
                     Authorization: `Bearer ${idToken}`
                   }
       }).then(result => {
-        console.log(result.data);
         if (result.data.fileUrl) {
           setOfferCreated(true);
         }     
@@ -67,25 +66,25 @@ export const OfferCreationTab = () => {
      * The render() method to create the UI of the tab
      */
     return (
-        <Provider theme={theme}>
-            <Flex fill={true} column styles={{
-                padding: ".8rem 0 .8rem .5rem"
-            }}>
-                <Flex.Item>
-                  <Header content="This is your tab" />
-                </Flex.Item>
-                <Flex.Item>
-                  <OfferCreationForm offerCreated={offerCreated} createOffer={createOffer} />
-                </Flex.Item>
-                <Flex.Item>
-                  <div>{showSpinner && <Loader label="Creating document" labelPosition="above" />}</div>
-                </Flex.Item>
-                <Flex.Item styles={{
-                    padding: ".8rem 0 .8rem .5rem"
-                }}>
-                  <div>{offerCreated && <span><Text size="larger" content="Your offer document is created and can be found" /><a href={offerFileUrl}>here</a></span>}</div>
-                </Flex.Item>
-            </Flex>
-        </Provider>
+      <Provider theme={theme}>
+        <Flex fill={true} column styles={{
+            padding: ".8rem 0 .8rem .5rem"
+        }}>
+          <Flex.Item>
+            <Header content="Offer creation" />
+          </Flex.Item>
+          <Flex.Item>
+            <OfferCreationForm offerCreated={offerCreated} createOffer={createOffer} />
+          </Flex.Item>
+          <Flex.Item>
+            <div>{showSpinner && <Loader label="Creating document" labelPosition="above" />}</div>
+          </Flex.Item>
+          <Flex.Item styles={{
+              padding: ".8rem 0 .8rem .5rem"
+          }}>
+            <div>{offerCreated && <Text size="larger">Your offer document is created and can be found <a href={offerFileUrl}>here</a></Text>}</div>
+          </Flex.Item>
+        </Flex>
+      </Provider>
     );
 };

@@ -32,7 +32,6 @@ export const OfferCreationForm = (props: IOfferCreationFormProps) => {
   };
 
   const onOfferingVATChange = (e, data) => {
-    console.log(data);
     switch (data.value.key) {
       case "19":
         setVAT(0.19);
@@ -55,11 +54,12 @@ export const OfferCreationForm = (props: IOfferCreationFormProps) => {
   }, [title, description, date, price,vat]);
 
   return (
-    <div>
+    <div className="form">
       <div>
         <Input label="Title" 
                 value={title}
-                type="text" 
+                type="text"
+                fluid
                 onChange={(e, data) => {
                   if (data) {
                       setTitle(data.value);
@@ -89,6 +89,7 @@ export const OfferCreationForm = (props: IOfferCreationFormProps) => {
         <Dropdown
           items={vatItems}
           placeholder="Select VAT"
+          fluid
           onChange={onOfferingVATChange}
         />
       </div>
@@ -103,9 +104,8 @@ export const OfferCreationForm = (props: IOfferCreationFormProps) => {
                     }
                   }} />
       </div>
-
-      <div>
-        <Button onClick={storeData}>Create Offer</Button>
+      <div className="formButton">
+        <Button primary onClick={storeData}>Create Offer</Button>
       </div>
     </div>
   );

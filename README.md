@@ -1,17 +1,21 @@
 # Offer Creation (yoteams) - Microsoft Teams App
 
-Generate a Microsoft Teams application.
+Teams and Office App to create custom offer documents for further processing.
 
 ## Summary
 
-This sample is a Teams personal Tab to act as a Microsoft 365 across application (Teams, Outlook, Office) including a search-based messaging extension to act in Teams and Outlook.
+This sample is a Teams personal Tab to act as a Microsoft 365 across application (Teams, Outlook, Office) including a search-based messaging extension to act in Teams and Outlook. The App will create custom offer documents based on a custom SharePoint content type with custom document template for further processing such as review and finalization (PDF archive).
+
+App live in action inside Teams
+
+![App live in action inside Teams](assets/15OfferCreationDemo_yoteams.gif)
 
 For further details see the author's [blog series](https://mmsharepoint.wordpress.com/2022/11/22/modern-sharepoint-content-type-publishing-manually-or-automated-pnp/)
 
 ## Prerequisites
 
 * [Office 365 tenant](https://dev.office.com/sharepoint/docs/spfx/set-up-your-development-environment)
-* [Node.js](https://nodejs.org) version 10.14.1 or higher
+* [Node.js](https://nodejs.org) version 14.17.5 or higher
 * [Gulp CLI](https://github.com/gulpjs/gulp-cli) `npm install gulp-cli --global`
 * [ngrok](https://ngrok.com) or similar tunneling application is required for local testing
 
@@ -72,59 +76,6 @@ This is a Teams personal Tab app to act as a Microsoft 365 across application (T
 * [Extend Teams apps across Microsoft 365](https://docs.microsoft.com/en-us/microsoftteams/platform/m365-apps/overview?WT.mc_id=M365-MVP-5004617)
 * [Use FluentUI React Northstar Input, Datepicker, Dropdown, DropdownItem, DropdownItemProps, DropdownProps, Loader, TextArea](https://fluentsite.z22.web.core.windows.net/)
 
-## Getting started with Microsoft Teams Apps development
-
-Head on over to [Microsoft Teams official documentation](https://developer.microsoft.com/en-us/microsoft-teams) to learn how to build Microsoft Teams Tabs or the [Microsoft Teams Yeoman generator docs](https://github.com/PnP/generator-teams/docs) for details on how this solution is set up.
-
-## Project setup
-
-All required source code are located in the `./src` folder:
-
-* `client` client side code
-* `server` server side code
-* `public` static files for the web site
-* `manifest` for the Microsoft Teams app manifest
-
-For further details see the [Yo Teams documentation](https://github.com/PnP/generator-teams/docs)
-
-## Building the app
-
-The application is built using the `build` Gulp task. 
-
-``` bash
-npm i -g gulp-cli
-gulp build
-```
-
-## Building the manifest
-
-To create the Microsoft Teams Apps manifest, run the `manifest` Gulp task. This will generate and validate the package and finally create the package (a zip file) in the `package` folder. The manifest will be validated against the schema and dynamically populated with values from the `.env` file.
-
-``` bash
-gulp manifest
-```
-
-## Deploying the manifest
-
-Using the `yoteams-deploy` plugin, automatically added to the project, deployment of the manifest to the Teams App store can be done manually using `gulp tenant:deploy` or by passing the `--publish` flag to any of the `serve` tasks.
-
-## Configuration
-
-Configuration is stored in the `.env` file.
-
-## Debug and test locally
-
-To debug and test the solution locally you use the `serve` Gulp task. This will first build the app and then start a local web server on port 3007, where you can test your Tabs, Bots or other extensions. Also this command will rebuild the App if you change any file in the `/src` directory.
-
-``` bash
-gulp serve
-```
-
-To debug the code you can append the argument `debug` to the `serve` command as follows. This allows you to step through your code using your preferred code editor.
-
-``` bash
-gulp serve --debug
-```
 
 ## Useful links
 
