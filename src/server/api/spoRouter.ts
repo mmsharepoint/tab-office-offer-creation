@@ -170,7 +170,7 @@ export const spoRouter = (options: any): express.Router => {
               
         const tmplFile = await loadTemplate(accessToken, offer, teamSiteUrl, teamSiteRelativeUrl);
         const newFile = await createOfferFile(accessToken, teamSiteUrl, teamSiteRelativeUrl, tmplFile);
-        const newFileUrl = teamSiteUrl + newFile.ServerRelativeUrl;
+        const newFileUrl = `https://${teamSiteDomain}${newFile.ServerRelativeUrl}`;
         const fileListItemInfo = await getFileListItem(accessToken, teamSiteUrl, teamSiteRelativeUrl, tmplFile.name);
         const fileListItem = await updateFileListItem(accessToken, teamSiteUrl, teamSiteRelativeUrl, fileListItemInfo.id, fileListItemInfo.type, offer);
 

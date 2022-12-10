@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Text, Button, Input, Datepicker, Dropdown, DropdownItem, DropdownItemProps, DropdownProps, TextArea } from "@fluentui/react-northstar";
-import { useState, useCallback, useEffect } from "react";
+import { Text, Button, Input, Datepicker, Dropdown, TextArea } from "@fluentui/react-northstar";
+import { useState, useCallback } from "react";
 import { IOfferCreationFormProps } from "./IOfferCreationFormProps";
 import { IOffer } from "../../model/IOffer";
 
@@ -24,14 +24,14 @@ export const OfferCreationForm = (props: IOfferCreationFormProps) => {
     }
   ];
 
-  const onOfferingDateChange = (e, data) => {
+  const onOfferingDateChange = useCallback((e, data) => {
     var date = new Date(data.value);
     if (true)  {
       setDate(date.toISOString());
     }
-  };
+  }, []);
 
-  const onOfferingVATChange = (e, data) => {
+  const onOfferingVATChange = useCallback((e, data) => {
     switch (data.value.key) {
       case "19":
         setVAT(0.19);
@@ -40,7 +40,7 @@ export const OfferCreationForm = (props: IOfferCreationFormProps) => {
         setVAT(0.07);
         break;
     }
-  };
+  }, []);
 
   const storeData = useCallback(() => {
     const newOffer: IOffer = {
