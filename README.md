@@ -10,7 +10,7 @@ App live in action inside Teams
 
 ![App live in action inside Teams](assets/15OfferCreationDemo_yoteams.gif)
 
-For further details see the author's [blog series](https://mmsharepoint.wordpress.com/2022/11/22/modern-sharepoint-content-type-publishing-manually-or-automated-pnp/)
+For further details see the author's [blog series](https://mmsharepoint.wordpress.com/2022/12/28/a-sharepoint-document-generator-as-microsoft-365-app-i-yoteams/)
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ For further details see the author's [blog series](https://mmsharepoint.wordpres
 
 Version|Date|Author|Comments
 -------|----|----|--------
-1.0|Nov xx, 2022|[Markus Moeller](https://twitter.com/moeller2_0)|Initial release
+1.0|Dec 28, 2022|[Markus Moeller](https://twitter.com/moeller2_0)|Initial release
 
 ## Disclaimer
 
@@ -37,13 +37,13 @@ Version|Date|Author|Comments
 ## Minimal Path to Awesome
 - Clone the repository
     ```bash
-    git clone https://github.com/mmsharepoint/tab-meeting-record-name.git
+    git clone https://github.com/mmsharepoint/tab-office-offer-creation.git
     ```
 
-- In a console, navigate to `/tab-meeting-record-name`
+- In a console, navigate to `/tab-office-offer-creation`
 
     ```bash
-    cd tab-meeting-record-name
+    cd tab-office-offer-creation
     ```
 
 - Install modules

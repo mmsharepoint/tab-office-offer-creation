@@ -7,6 +7,11 @@
       <pnp:Parameter Key="DocumentsTitle">Documents</pnp:Parameter>
     </pnp:Parameters>
   </pnp:Preferences>
+  <pnp:Tenant>
+    <pnp:StorageEntities>
+      <pnp:StorageEntity Key="CreateOfferSiteUrl" Value="{hosturl}{sitecollection}" />
+    </pnp:StorageEntities>
+  </pnp:Tenant>
   <pnp:Templates ID="CONTAINER-TEMPLATE-0EC4AF107C5C49A0BFED873E6CDAF0FC">
     <pnp:ProvisioningTemplate ID="TEMPLATE-0EC4AF107C5C49A0BFED873E6CDAF0FC" Version="1" BaseSiteTemplate="GROUP#0" Scope="RootSite">
       <pnp:SiteFields>
