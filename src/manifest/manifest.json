@@ -63,7 +63,8 @@
     "messageTeamMembers"
   ],
   "validDomains": [
-    "{{PUBLIC_HOSTNAME}}"
+    "{{PUBLIC_HOSTNAME}}",
+    "*.botframework.com"
   ],
   "showLoadingIndicator": false,
   "isFullScreen": false,
