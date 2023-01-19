@@ -42,28 +42,61 @@ export default class GraphSearchService {
   }
 
   public async reviewItem(token: string, itemID: string, user: string): Promise<void> {
-    let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);
-    // Get user LookupID
-    const userInfoListID = await this.getUserInfoListID(token, requestUrl);
-    const userLookupID = await this.getUserLookupID(token, requestUrl, userInfoListID, user);
-    requestUrl += `/${itemID}/fields`;
+    const currentItem = await this.getItem(token, itemID);
+    if (currentItem.reviewer !== '') {
+      let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);
+      // Get user LookupID
+      const userInfoListID = await this.getUserInfoListID(token, requestUrl);
+      const userLookupID = await this.getUserLookupID(token, requestUrl, userInfoListID, user);
+      requestUrl += `/${itemID}/fields`;
+      const config: AxiosRequestConfig = {  headers: {      
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }};
+      const fieldValueSet = {
+        OfferingReviewedDate: new Date().toISOString(),
+        OfferingReviewerLookupId: userLookupID
+      };  
+      Axios.patch(requestUrl, 
+                  fieldValueSet,
+                  config
+      )
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        log(error);
+      });
+    }
+  }
+
+  public async getItem(token: string, itemID: string): Promise<IOfferDocument> {
+    let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);   
+    requestUrl += `/${itemID}?$expand=fields($select=Title,OfferingDescription,id,Author,OfferingReviewedDate,OfferingReviewer)`;
     const config: AxiosRequestConfig = {  headers: {      
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     }};
-    const fieldValueSet = {
-      OfferingReviewedDate: new Date().toISOString(),
-      OfferingReviewerLookupId: userLookupID
-    };  
-    Axios.patch(requestUrl, 
-                fieldValueSet,
-                config
+    return Axios.get(requestUrl,                
+              config
     )
     .then((response) => {
       console.log(response.data);
+      const item: IOfferDocument = {
+        id: itemID,
+        name: response.data.fields.Title,
+        description: response.data.fields.OfferingDescription,
+        url: response.data.webUrl,
+        author: response.data.fields.Author,
+        modified: new Date(response.data.lastModifiedDateTime),
+        reviewer: response.data.fields.OfferingReviewer ? response.data.fields.OfferingReviewer : undefined,
+        reviewedOn: response.data.fields.OfferingReviewedDate ? new Date(response.data.fields.OfferingReviewedDate) : undefined
+      }
+      return Promise.resolve(item);
     })
     .catch((error) => {
       log(error);
+      return Promise.reject();
     });
   }
 

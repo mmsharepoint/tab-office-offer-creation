@@ -5,4 +5,6 @@ export interface IOfferDocument {
   author: string;
   id: string;
   url: string;
+  reviewer?: string;
+  reviewedOn?: Date;
 }

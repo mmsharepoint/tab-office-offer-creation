@@ -34,7 +34,15 @@
       ]
     }
   ],
-  "bots": [],
+  "bots": [
+    {
+      "botId": "{{MICROSOFT_APP_ID}}",
+      "scopes": [
+        "team",
+        "groupchat"
+      ]
+    }
+  ],
   "connectors": [],
   "composeExtensions": [
     {
@@ -49,7 +57,7 @@
           "parameters": [
             {
               "name": "parameter",
-              "description": "Description of the parameter",
+              "description": "Search for Offer documents",
               "title": "Parameter"
             }
           ],
