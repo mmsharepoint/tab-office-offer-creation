@@ -134,7 +134,7 @@ export default class CardService {
         action: {
             type: "Action.Execute",
             title: "Refresh",
-            verb: "alreadyrevied",
+            verb: "alreadyreviewed",
             data: {
               doc: doc
             }
@@ -217,6 +217,76 @@ export default class CardService {
             }
           ]
         }
+      }
+    ]
+    }
+  }
+
+  public static reviewedCardUA = (doc: IOfferDocument) => {
+    return {
+    type: "AdaptiveCard",
+    $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+    version: "1.4",
+    body: [
+            {
+              type: "ColumnSet",
+              columns: [
+                    {
+                      type: "Column",
+                      width: 25,
+                      items: [
+                        {
+                          type: "Image",
+                          url: `https://${process.env.PUBLIC_HOSTNAME}/assets/icon.png`,
+                          style: "Person"
+                        },
+                        {
+                          type: "TextBlock",
+                          text: `Reviewed by:`
+                        },
+                        {
+                          type: "TextBlock",
+                          text: `${doc.reviewer}`
+                        }
+                      ]
+                    },
+                    {
+                      type: "Column",
+                      width: 75,
+                      items: [
+                        {
+                          type: "TextBlock",
+                          text: doc.name,
+                          size: "Large",
+                          weight: "Bolder"
+                        },
+                        {
+                          type: "TextBlock",
+                          text: doc.description,
+                          size: "Medium"
+                        },
+                        {
+                          type: "TextBlock",
+                          text: `Author: ${doc.author}`
+                        },
+                        {
+                          type: "TextBlock",
+                          text: `Modified: ${doc.modified.toLocaleDateString()}`
+                        },                        
+                        {
+                          type: "TextBlock",
+                          text: `Reviewed on: ${doc.reviewedOn!.toLocaleDateString()}`
+                        }
+                      ]
+                    }
+                ]
+            }                     
+    ],
+    actions: [
+      {
+        type: "Action.OpenUrl",
+        title: "View",
+        url: doc.url
       }
     ]
     }

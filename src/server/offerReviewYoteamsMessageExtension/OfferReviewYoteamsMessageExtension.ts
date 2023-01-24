@@ -38,17 +38,17 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
     }
     if (query.commandId === 'offerReviewYoteamsMessageExtension') {
       let documents: IOfferDocument[] = [];
-      // let memberIDs: string[] = [];
+      let memberIDs: string[] = [];
       if (query.parameters && query.parameters[0] && query.parameters[0].name === "initialRun") {
         const controller = new GraphSearchService();
         documents = await controller.getFiles(tokenResponse.token);
-        // const memberResponse = await TeamsInfo.getPagedMembers(context, 60, '');      
-        // memberResponse.members.forEach((m) => {
-        //   memberIDs.push(m.id!);
-        // });
+        const memberResponse = await TeamsInfo.getPagedMembers(context, 60, '');      
+        memberResponse.members.forEach((m) => {
+          memberIDs.push(m.id!);
+        });
       }
       documents.forEach((doc) => {
-        const card = CardFactory.adaptiveCard(CardService.reviewCard(doc)); // memberIDs    
+        const card = CardFactory.adaptiveCard(CardService.reviewCardUA(doc, memberIDs));    
         const preview = {
           contentType: "application/vnd.microsoft.card.thumbnail",
           content: {
@@ -98,28 +98,43 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
     if (typeof doc.modified === 'string') {
       doc.modified = new Date(doc.modified);
     }
+    const adapter: any = context.adapter;
+    const magicCode = (context.activity.value.state && Number.isInteger(Number(context.activity.value.state))) ? context.activity.value.state : '';        
+    const tokenResponse = await adapter.getUserToken(context, this.connectionName, magicCode);
+    if (!tokenResponse || !tokenResponse.token) {
+      // There is no token, so the user has not signed in yet.            
+      return Promise.reject();
+    }
+    // Get user's Email from the token (as the context.activity only offers display name)
+    const decoded: { [key: string]: any; } = jwtDecode(tokenResponse.token) as { [key: string]: any; };
+    const controller = new GraphSearchService();
     switch (context.activity.value.action.verb) {
       case 'review':
-        const adapter: any = context.adapter;
-        const magicCode = (context.activity.value.state && Number.isInteger(Number(context.activity.value.state))) ? context.activity.value.state : '';        
-        const tokenResponse = await adapter.getUserToken(context, this.connectionName, magicCode);
-        if (!tokenResponse || !tokenResponse.token) {
-          // There is no token, so the user has not signed in yet.            
-          return Promise.reject();
-        }
-        // Get user's Email from the token (as the context.activity only offers display name)
-        const decoded: { [key: string]: any; } = jwtDecode(tokenResponse.token) as { [key: string]: any; };
-        const controller = new GraphSearchService();
         await controller.reviewItem(tokenResponse.token, doc.id, decoded.upn!);
         break;
-      case 'alreadyrevied':        
-        return Promise.resolve({
-          statusCode: StatusCodes.OK,
-          type: 'application/vnd.microsoft.card.adaptive',
-          value: CardService.reviewedCard(doc)
-        });
+      case 'alreadyreviewed':
+        const currentDoc = await controller.getItem(tokenResponse.token, doc.id);
+        if (typeof currentDoc.reviewer !== undefined) {
+          return Promise.resolve({
+            statusCode: StatusCodes.OK,
+            type: 'application/vnd.microsoft.card.adaptive',
+            value: CardService.reviewedCardUA(currentDoc)
+          });
+        }
+        else {
+          let memberIDs: string[] = [];
+          const memberResponse = await TeamsInfo.getPagedMembers(context, 60, '');      
+          memberResponse.members.forEach((m) => {
+            memberIDs.push(m.id!);
+          });
+          return Promise.resolve({
+            statusCode: StatusCodes.OK,
+            type: 'application/vnd.microsoft.card.adaptive',
+            value: CardService.reviewCardUA(currentDoc, memberIDs)
+          });
+        }     
     }
-    
+    // ??
     const card = CardService.reviewedCard(doc);
     return Promise.resolve({
       statusCode: StatusCodes.OK,
