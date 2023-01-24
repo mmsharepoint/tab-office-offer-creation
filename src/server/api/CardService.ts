@@ -239,14 +239,6 @@ export default class CardService {
                           type: "Image",
                           url: `https://${process.env.PUBLIC_HOSTNAME}/assets/icon.png`,
                           style: "Person"
-                        },
-                        {
-                          type: "TextBlock",
-                          text: `Reviewed by:`
-                        },
-                        {
-                          type: "TextBlock",
-                          text: `${doc.reviewer}`
                         }
                       ]
                     },
@@ -272,15 +264,38 @@ export default class CardService {
                         {
                           type: "TextBlock",
                           text: `Modified: ${doc.modified.toLocaleDateString()}`
-                        },                        
-                        {
-                          type: "TextBlock",
-                          text: `Reviewed on: ${doc.reviewedOn!.toLocaleDateString()}`
                         }
                       ]
                     }
                 ]
-            }                     
+            },
+            {
+              type: "ColumnSet",
+              columns: [
+                  {
+                    type: "Column",
+                    width: "stretch",
+                    items: [
+                      {
+                        type: "TextBlock",
+                        text: `Reviewed by: ${doc.reviewer}`,
+                        wrap: true
+                      }
+                    ]
+                  },
+                  {
+                    type: "Column",
+                    width: "stretch",
+                    items: [
+                      {
+                        type: "TextBlock",
+                        text: `Reviewed on: ${doc.reviewedOn!.toLocaleDateString()}`,
+                        wrap: true
+                      }
+                    ]
+                  }
+              ]
+          }                   
     ],
     actions: [
       {
