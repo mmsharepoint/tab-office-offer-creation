@@ -136,7 +136,8 @@ export default class CardService {
             title: "Refresh",
             verb: "alreadyreviewed",
             data: {
-              doc: doc
+              doc: doc,
+              userIds: userIds
             }
         },
         userIds: userIds
@@ -192,30 +193,11 @@ export default class CardService {
         url: doc.url
       },
       {
-        type: "Action.ShowCard",
-        title: "Review",
-        card: {
-          type: "AdaptiveCard",
-          body: [
-            {
-              type: "Input.Text",
-              isVisible: false,
-              value: doc.id,
-              id: "id"
-            },
-            {
-              type: "Input.Text",
-              isVisible: false,
-              value: "reviewed",
-              id: "action"
-            }
-          ],
-          actions: [
-            {
-              type: "Action.Submit",
-              title: "Reviewed" 
-            }
-          ]
+        type: "Action.Execute",
+        title: "Reviewed",
+        verb: "review",
+        data: {
+          doc: doc
         }
       }
     ]

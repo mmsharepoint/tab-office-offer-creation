@@ -113,8 +113,13 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
         await controller.reviewItem(tokenResponse.token, doc.id, decoded.upn!);
         break;
       case 'alreadyreviewed':
-        const currentDoc = await controller.getItem(tokenResponse.token, doc.id);
-        if (typeof currentDoc.reviewer !== undefined) {
+        let currentDoc: IOfferDocument;
+        currentDoc = await controller.getItem(tokenResponse.token, doc.id)
+          .catch(e => { 
+            console.log(e);
+            return doc; // Use card's doc instead
+        });
+        if (typeof currentDoc.reviewer !== 'undefined') {
           return Promise.resolve({
             statusCode: StatusCodes.OK,
             type: 'application/vnd.microsoft.card.adaptive',
@@ -122,15 +127,15 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
           });
         }
         else {
-          let memberIDs: string[] = [];
-          const memberResponse = await TeamsInfo.getPagedMembers(context, 60, '');      
-          memberResponse.members.forEach((m) => {
-            memberIDs.push(m.id!);
-          });
+          // let memberIDs: string[] = [];
+          // const memberResponse = await TeamsInfo.getPagedMembers(context, 60, '');      
+          // memberResponse.members.forEach((m) => {
+          //   memberIDs.push(m.id!);
+          // });
           return Promise.resolve({
             statusCode: StatusCodes.OK,
             type: 'application/vnd.microsoft.card.adaptive',
-            value: CardService.reviewCardUA(currentDoc, memberIDs)
+            value: CardService.reviewCardUA(currentDoc, context.activity.value.action.data.userIds)
           });
         }     
     }

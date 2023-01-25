@@ -96,7 +96,7 @@ export default class GraphSearchService {
     })
     .catch((error) => {
       log(error);
-      return Promise.reject();
+      return Promise.reject(new Error("Unable to retrieve current item"));
     });
   }
 
