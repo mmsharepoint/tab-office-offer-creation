@@ -72,7 +72,7 @@ export default class GraphSearchService {
 
   public async getItem(token: string, itemID: string): Promise<IOfferDocument> {
     let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);  
-    requestUrl += `/${itemID}?$expand=fields($select=Title,OfferingDescription,id,Author,OfferingReviewedDate,OfferingReviewer,OfferingSubmitter,SubmittedOn),driveItem($select=id)`;
+    requestUrl += `/${itemID}?$expand=fields($select=Title,OfferingDescription,id,Author,OfferingReviewedDate,OfferingReviewer,OfferingSubmitter,SubmittedOn,PublishedURL),driveItem($select=id)`;
     const config: AxiosRequestConfig = {  headers: {      
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -93,7 +93,8 @@ export default class GraphSearchService {
         reviewer: response.data.fields.OfferingReviewer ? response.data.fields.OfferingReviewer : undefined,
         reviewedOn: response.data.fields.OfferingReviewedDate ? new Date(response.data.fields.OfferingReviewedDate) : undefined,
         publisher: response.data.fields.OfferingSubmitter ? response.data.fields.OfferingSubmitter : undefined,
-        publishedOn: response.data.fields.SubmittedOn ? new Date(response.data.fields.SubmittedOn) : undefined
+        publishedOn: response.data.fields.SubmittedOn ? new Date(response.data.fields.SubmittedOn) : undefined,
+        publishedFileUrl: response.data.fields.PublishedURL ? response.data.fields.PublishedURL : ''
       }
       return Promise.resolve(item);
     })
@@ -109,7 +110,7 @@ export default class GraphSearchService {
     driveRequestUrl += `/drive`;
     const pdfFile = await this.downloadTmpFileAsPDF(fileID, driveRequestUrl, fileName, token);
     const webUrl = await this.uploadFileToTargetSite(pdfFile, token, driveRequestUrl);
-    await this.updatePublishedItem(token, itemID, user);
+    await this.updatePublishedItem(token, itemID, user, webUrl);
     return webUrl;
   }
 
@@ -218,7 +219,7 @@ export default class GraphSearchService {
     }
   }
 
-  private async updatePublishedItem (token: string, itemID: string, user: string): Promise<void> {
+  private async updatePublishedItem (token: string, itemID: string, user: string, publishedFileUrl: string): Promise<void> {
     let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);
       // Get user LookupID
       const userInfoListID = await this.getUserInfoListID(token, requestUrl);
@@ -230,7 +231,8 @@ export default class GraphSearchService {
       }};
       const fieldValueSet = {
         SubmittedOn: new Date().toISOString(),
-        OfferingSubmitterLookupId: userLookupID
+        OfferingSubmitterLookupId: userLookupID,
+        PublishedURL: publishedFileUrl
       };  
       Axios.patch(requestUrl, 
                   fieldValueSet,

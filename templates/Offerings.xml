@@ -23,6 +23,7 @@
         <Field ID="{24bb4ff5-9a39-4423-8d4d-d9469af8afaa}" Name="OfferingNetPrice" StaticName="OfferingNetPrice" DisplayName="Offering Net Price" Type="Currency" Group="MM" />
         <Field ID="{a80c4b46-1d74-4e11-a67c-dabd60717d94}" Name="OfferingSubmitter" StaticName="OfferingSubmitter" DisplayName="Offering Submitter" Type="User" List="UserInfo" ShowField="ImnName" UserSelectionMode="PeopleOnly" UserSelectionScope="0" Group="MM" />
         <Field ID="{0c46d809-4a27-42a4-9c63-3251175b5340}" Name="SubmittedOn" StaticName="SubmittedOn" DisplayName="Submitted On" Type="DateTime" Format="DateTime" Group="MM" />
+        <Field ID="{06bd0708-f323-4522-a87a-dcd0242986ae}" Name="PublishedURL" StaticName="PublishedURL" Type="Text" DisplayName="Published URL" Group="MM" />
       </pnp:SiteFields>
       <pnp:ContentTypes>
         <pnp:ContentType ID="0x0101003656A003937692408E62ADAA56A5AEEF" Name="Offering" Description="" Group="MM" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
@@ -43,6 +44,7 @@
 			      <pnp:FieldRef ID="04724b89-1195-4437-ba6a-63ada783d1dc" Name="OfferingReviewedDate" UpdateChildren="true" />
             <pnp:FieldRef ID="{a80c4b46-1d74-4e11-a67c-dabd60717d94}" Name="OfferingSubmitter" UpdateChildren="true" />
             <pnp:FieldRef ID="{0c46d809-4a27-42a4-9c63-3251175b5340}" Name="SubmittedOn" UpdateChildren="true" />
+            <pnp:FieldRef ID="{06bd0708-f323-4522-a87a-dcd0242986ae}" Name="PublishedURL" UpdateChildren="true" />
           </pnp:FieldRefs>          
         </pnp:ContentType>
       </pnp:ContentTypes>

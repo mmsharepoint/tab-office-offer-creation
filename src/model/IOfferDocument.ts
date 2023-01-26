@@ -10,4 +10,5 @@ export interface IOfferDocument {
   reviewedOn?: Date;
   publisher?: string;
   publishedOn?: Date;
+  publishedFileUrl?: string;
 }

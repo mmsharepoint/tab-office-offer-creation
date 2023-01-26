@@ -12,3 +12,5 @@ connectors.json
 
 # do not include dist files
 dist
+templates/deploy_helper.ps1
+temp/manifest.json

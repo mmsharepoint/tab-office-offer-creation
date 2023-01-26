@@ -451,7 +451,7 @@ export default class CardService {
                   items: [
                     {
                       type: "TextBlock",
-                      text: `Published by: ${doc.reviewer}`,
+                      text: `Published by: ${doc.publisher}`,
                       wrap: true
                     }
                   ]
@@ -462,7 +462,7 @@ export default class CardService {
                   items: [
                     {
                       type: "TextBlock",
-                      text: `Published on: ${doc.reviewedOn!.toLocaleDateString()}`,
+                      text: `Published on: ${doc.publishedOn!.toLocaleDateString()}`,
                       wrap: true
                     }
                   ]
@@ -474,7 +474,7 @@ export default class CardService {
       {
         type: "Action.OpenUrl",
         title: "View",
-        url: doc.url
+        url: doc.publishedFileUrl
       }
     ]
     }
