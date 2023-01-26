@@ -1,6 +1,6 @@
 import Axios, { AxiosRequestConfig } from "axios";
 import * as debug from 'debug';
-import { IOfferDocument } from "../../model/IOfferDcoument";
+import { IOfferDocument } from "../../model/IOfferDocument";
 
 const log = debug('graphRouter');
 
@@ -71,8 +71,8 @@ export default class GraphSearchService {
   }
 
   public async getItem(token: string, itemID: string): Promise<IOfferDocument> {
-    let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);   
-    requestUrl += `/${itemID}?$expand=fields($select=Title,OfferingDescription,id,Author,OfferingReviewedDate,OfferingReviewer)`;
+    let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);  
+    requestUrl += `/${itemID}?$expand=fields($select=Title,OfferingDescription,id,Author,OfferingReviewedDate,OfferingReviewer,OfferingSubmitter,SubmittedOn),driveItem($select=id)`;
     const config: AxiosRequestConfig = {  headers: {      
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -84,13 +84,16 @@ export default class GraphSearchService {
       console.log(response.data);
       const item: IOfferDocument = {
         id: itemID,
+        fileId: response.data.driveItem.id,
         name: response.data.fields.Title,
         description: response.data.fields.OfferingDescription,
         url: response.data.webUrl,
         author: response.data.fields.Author,
         modified: new Date(response.data.lastModifiedDateTime),
         reviewer: response.data.fields.OfferingReviewer ? response.data.fields.OfferingReviewer : undefined,
-        reviewedOn: response.data.fields.OfferingReviewedDate ? new Date(response.data.fields.OfferingReviewedDate) : undefined
+        reviewedOn: response.data.fields.OfferingReviewedDate ? new Date(response.data.fields.OfferingReviewedDate) : undefined,
+        publisher: response.data.fields.OfferingSubmitter ? response.data.fields.OfferingSubmitter : undefined,
+        publishedOn: response.data.fields.SubmittedOn ? new Date(response.data.fields.SubmittedOn) : undefined
       }
       return Promise.resolve(item);
     })
@@ -98,6 +101,16 @@ export default class GraphSearchService {
       log(error);
       return Promise.reject(new Error("Unable to retrieve current item"));
     });
+  }
+
+  public async publishItem(token: string, fileName: string, itemID: string, fileID: string, user: string): Promise<string> {
+    let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);
+    let driveRequestUrl = requestUrl.split('/lists')[0];
+    driveRequestUrl += `/drive`;
+    const pdfFile = await this.downloadTmpFileAsPDF(fileID, driveRequestUrl, fileName, token);
+    const webUrl = await this.uploadFileToTargetSite(pdfFile, token, driveRequestUrl);
+    await this.updatePublishedItem(token, itemID, user);
+    return webUrl;
   }
 
   private async getSiteAndListByPath (accessToken: string, siteUrl: string): Promise<string> {
@@ -163,5 +176,71 @@ export default class GraphSearchService {
       log(error);
       return "";
     }
+  }
+
+  private async downloadTmpFileAsPDF (fileID: string, driveRequestUrl: string, fileName: string, accessToken: string): Promise<any> {
+    driveRequestUrl += `/items/${fileID}/content?format=PDF`;
+    return Axios.get(driveRequestUrl, {
+                    responseType: 'arraybuffer', // no 'blob' as 'blob' only works in browser
+                    headers: {          
+                        Authorization: `Bearer ${accessToken}`
+                    }})
+                    .then(response => {
+                      console.log(response.data);
+                        const respFile = { data: response.data, name: `${fileName}.pdf`, size: response.data.length };
+                        return respFile;
+                    }).catch(err => {
+                      console.log(err);
+                        return null;
+                    });
+  }
+
+  private async uploadFileToTargetSite (file: File, accessToken: string, driveUrl: string): Promise<string> {
+    driveUrl += `/root:/Published/${file.name}:/content`;
+    if (file.size <(4 * 1024 * 1024)) {
+      const fileBuffer = file as any; 
+      return Axios.put(driveUrl, fileBuffer.data, {
+                  headers: {          
+                      Authorization: `Bearer ${accessToken}`
+                  }})
+                  .then(response => {
+                    log(response);
+                    const webUrl = response.data.webUrl;
+                    return webUrl;
+                  }).catch(err => {
+                    log(err);
+                    return null;
+                  });
+    }
+    else {
+      // File.size>4MB, refer to https://mmsharepoint.wordpress.com/2020/01/12/an-outlook-add-in-with-sharepoint-framework-spfx-storing-mail-with-microsoftgraph/
+      return "";
+    }
+  }
+
+  private async updatePublishedItem (token: string, itemID: string, user: string): Promise<void> {
+    let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);
+      // Get user LookupID
+      const userInfoListID = await this.getUserInfoListID(token, requestUrl);
+      const userLookupID = await this.getUserLookupID(token, requestUrl, userInfoListID, user);
+      requestUrl += `/${itemID}/fields`;
+      const config: AxiosRequestConfig = {  headers: {      
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }};
+      const fieldValueSet = {
+        SubmittedOn: new Date().toISOString(),
+        OfferingSubmitterLookupId: userLookupID
+      };  
+      Axios.patch(requestUrl, 
+                  fieldValueSet,
+                  config
+      )
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        log(error);
+      });
   }
 }

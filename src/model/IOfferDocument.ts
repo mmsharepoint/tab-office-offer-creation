@@ -4,7 +4,10 @@ export interface IOfferDocument {
   modified: Date;
   author: string;
   id: string;
+  fileId?: string;
   url: string;
   reviewer?: string;
   reviewedOn?: Date;
+  publisher?: string;
+  publishedOn?: Date;
 }

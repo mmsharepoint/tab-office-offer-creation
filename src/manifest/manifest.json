@@ -52,7 +52,21 @@
         {
           "id": "offerReviewYoteamsMessageExtension",
           "title": "Offer Review (yoteams)",
-          "description": "Description of Offer Review (yoteams)",
+          "description": "Reviews an offer",
+          "initialRun": true,
+          "parameters": [
+            {
+              "name": "parameter",
+              "description": "Search for Offer documents",
+              "title": "Parameter"
+            }
+          ],
+          "type": "query"
+        },
+        {
+          "id": "offerPublishYoteamsMessageExtension",
+          "title": "Offer Publish (yoteams)",
+          "description": "Publishes an offer",
           "initialRun": true,
           "parameters": [
             {

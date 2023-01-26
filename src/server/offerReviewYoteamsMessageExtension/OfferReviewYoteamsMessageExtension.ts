@@ -3,7 +3,7 @@ import { PreventIframe } from "express-msteams-host";
 import { TurnContext, CardFactory, MessagingExtensionQuery, MessagingExtensionResult, ActionTypes, MessagingExtensionAttachment, TeamsInfo, StatusCodes } from "botbuilder";
 import { AdaptiveCardRequestValue, AdaptiveCardResponseBody, IMessagingExtensionMiddlewareProcessor } from "botbuilder-teams-messagingextensions";
 import GraphSearchService from "../api/GraphSearchService";
-import { IOfferDocument } from "../../model/IOfferDcoument";
+import { IOfferDocument } from "../../model/IOfferDocument";
 import jwtDecode from "jwt-decode";
 import CardService from "../api/CardService";
 
@@ -36,19 +36,19 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
       };
       return Promise.resolve(composeExtension);
     }
+    let memberIDs: string[] = [];
+    const memberResponse = await TeamsInfo.getPagedMembers(context, 60, '');      
+    memberResponse.members.forEach((m) => {
+      memberIDs.push(m.id!);
+    });
     if (query.commandId === 'offerReviewYoteamsMessageExtension') {
       let documents: IOfferDocument[] = [];
-      let memberIDs: string[] = [];
       if (query.parameters && query.parameters[0] && query.parameters[0].name === "initialRun") {
         const controller = new GraphSearchService();
-        documents = await controller.getFiles(tokenResponse.token);
-        const memberResponse = await TeamsInfo.getPagedMembers(context, 60, '');      
-        memberResponse.members.forEach((m) => {
-          memberIDs.push(m.id!);
-        });
+        documents = await controller.getFiles(tokenResponse.token);        
       }
       documents.forEach((doc) => {
-        const card = CardFactory.adaptiveCard(CardService.reviewCardUA(doc, memberIDs));    
+        const card = CardFactory.adaptiveCard(CardService.reviewCardUA(doc, memberIDs));
         const preview = {
           contentType: "application/vnd.microsoft.card.thumbnail",
           content: {
@@ -65,11 +65,35 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
       });
     }
     
+    if (query.commandId === 'offerPublishYoteamsMessageExtension') {
+      let documents: IOfferDocument[] = [];
+      if (query.parameters && query.parameters[0] && query.parameters[0].name === "initialRun") {
+        const controller = new GraphSearchService();
+        documents = await controller.getFiles(tokenResponse.token);        
+      }
+      documents.forEach((doc) => {
+        const card = CardFactory.adaptiveCard(CardService.publishCardUA(doc, memberIDs));
+        const preview = {
+          contentType: "application/vnd.microsoft.card.thumbnail",
+          content: {
+            title: doc.name,
+            text: doc.description,
+            images: [
+              {
+                url: `https://${process.env.PUBLIC_HOSTNAME}/assets/icon.png`
+              }
+            ]             
+          }
+        };
+        attachments.push({ contentType: card.contentType, content: card.content, preview: preview });
+      });
+    }
+
     return Promise.resolve({
-        type: "result",
-        attachmentLayout: "list",
-        attachments: attachments
-      } as MessagingExtensionResult);
+      type: "result",
+      attachmentLayout: "list",
+      attachments: attachments
+    } as MessagingExtensionResult);
   }
 
   public async onCardButtonClicked(context: TurnContext, value: any): Promise<void> {
@@ -137,7 +161,45 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
             type: 'application/vnd.microsoft.card.adaptive',
             value: CardService.reviewCardUA(currentDoc, context.activity.value.action.data.userIds)
           });
-        }     
+        }
+        break;
+      case 'publish':
+        const publishedFileUrl = await controller.publishItem(tokenResponse.token, doc.name, doc.id, doc.fileId!, decoded.upn!);
+        let finalDoc = await controller.getItem(tokenResponse.token, doc.id)
+          .catch(e => { 
+            console.log(e);
+            return doc; // Use card's doc instead
+        });
+        finalDoc.url = publishedFileUrl;
+        const card = CardService.publishedCardUA(finalDoc);
+        return Promise.resolve({
+          statusCode: StatusCodes.OK,
+          type: 'application/vnd.microsoft.card.adaptive',
+          value: card
+        });
+        break;
+      case 'alreadypublished':
+        let publishDoc: IOfferDocument;
+        publishDoc = await controller.getItem(tokenResponse.token, doc.id)
+          .catch(e => { 
+            console.log(e);
+            return doc; // Use card's doc instead
+        });
+        if (typeof publishDoc.publisher !== 'undefined') {
+          return Promise.resolve({
+            statusCode: StatusCodes.OK,
+            type: 'application/vnd.microsoft.card.adaptive',
+            value: CardService.publishedCardUA(publishDoc)
+          });
+        }
+        else {
+          return Promise.resolve({
+            statusCode: StatusCodes.OK,
+            type: 'application/vnd.microsoft.card.adaptive',
+            value: CardService.publishCardUA(publishDoc, context.activity.value.action.data.userIds)
+          });
+        }
+          break;
     }
     // ??
     const card = CardService.reviewedCard(doc);

@@ -24,6 +24,7 @@ export class OfferReviewYoteamsBot extends TeamsActivityHandler {
     private readonly conversationState: ConversationState;
     /** Local property for OfferReviewYoteamsMessageExtension */
     @MessageExtensionDeclaration("offerReviewYoteamsMessageExtension")
+    @MessageExtensionDeclaration("offerPublishYoteamsMessageExtension")
     private _offerReviewYoteamsMessageExtension: OfferReviewYoteamsMessageExtension;
 
     private readonly dialogs: DialogSet;
