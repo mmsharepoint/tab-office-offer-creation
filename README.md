@@ -10,6 +10,10 @@ App live in action inside Teams
 
 ![App live in action inside Teams](assets/15OfferCreationDemo_yoteams.gif)
 
+App live in action inside Teams using messaging extension
+
+![App live in action inside Teams using messaging extension](assets/31CreateReviewCard.gif)
+
 For further details see the author's [blog series](https://mmsharepoint.wordpress.com/2022/12/28/a-sharepoint-document-generator-as-microsoft-365-app-i-yoteams/)
 
 ## Prerequisites
@@ -29,6 +33,7 @@ For further details see the author's [blog series](https://mmsharepoint.wordpres
 Version|Date|Author|Comments
 -------|----|----|--------
 1.0|Dec 28, 2022|[Markus Moeller](https://twitter.com/moeller2_0)|Initial release
+2.0|Jan 28, 2023|[Markus Moeller](https://twitter.com/moeller2_0)|Added search-based messaging extension for Teams and Outlook
 
 ## Disclaimer
 
@@ -60,17 +65,28 @@ Version|Date|Author|Comments
 - You will need to register an app in Azure AD [also described here](https://mmsharepoint.wordpress.com/2021/09/07/meeting-apps-in-microsoft-teams-1-pre-meeting/#appreg)
   - with client secret
   - with **delegated** SharePoint permissions AllSires.Write 
-  - With exposed Api "access_as_user" and App ID Uri api://<NGrok-Url>/<App ID>
+  - With exposed Api "access_as_user" and App ID Uri api://{NGrok-Url}/{App ID}
   - With the client IDs for Teams App and Teams Web App 1fec8e78-bce4-4aaf-ab1b-5451cc387264 and 5e3ce6c0-2b1f-4285-8d4b-75ee78787346
   - Also With the client IDs for Office Apps Office web	4765445b-32c6-49b0-83e6-1d93765276ca, Office desktop 0ec893e0-5785-4de6-99da-4ed124e5296c,
 Outlook desktop, mobile	d3590ed6-52b3-4102-aeff-aad2292ab01c, Outlook web bc59ab01-8403-45c6-8796-ac3ef710b3e3
 - Also add the app ID and its secret to .env (taken from .env-sample) as TAB_APP_ID= and 
-    - add the secret to TAB_APP_SECRET"    ```
+    - add the secret to TAB_APP_SECRET=
+- Since messaging extensions utilize the Azure Bot Framework, you will need to register a new bot. 
+[These instructions](https://learn.microsoft.com/en-us/microsoftteams/platform/sbs-messagingextension-searchcommand?tabs=latestversionofvisualstudio&tutorial-step=3&WT.mc_id=M365-MVP-5004617) provide options for registering with or without an Azure subscription. 
+  - Be sure to enable the Microsoft Teams AND Outlook bot channel so your solution can communicate with Microsoft Teams AND Outlook
+  - For local testing, set the messaging endpoint to the https URL returned by ngrok plus "/api/messages" otherwise to your Azure App host url
+- Also add the bot's app ID and its secret to .env (taken from .env-sample) as MICROSOFT_APP_ID= and 
+    - add the secret to MICROSOFT_APP_PASSWORD= 
+- In the Bot itself add the app id and secret as "GraphConnection" with app id, tenant id, secret and scope=https://graph.microsoft.com/.default
+    - Use Azure Active Directory V2 as service provider
+    - Use the configured App URI cobnfigured also to your **bot's app registration** in the format api://{NGrok-Url}/{App ID} as Token Exchange URL
+
 
 ## Features
 
 This is a Teams personal Tab app to act as a Microsoft 365 across application (Teams, Outlook, Office)
 * Using SSO with Teams JS SDK 2.0
+* [Use SSO in a search-based messaging extension and extend to Outlook](https://learn.microsoft.com/en-us/microsoftteams/platform/m365-apps/extend-m365-teams-message-extension?tabs=manifest-teams-toolkit&WT.mc_id=M365-MVP-5004617)
 * Using O-B-O flow secure and totally in backend to retrieve and store data via Microsoft SharePoint
 * Using SharePoint Rest API inside NodeJS application
 * [Extend Teams apps across Microsoft 365](https://docs.microsoft.com/en-us/microsoftteams/platform/m365-apps/overview?WT.mc_id=M365-MVP-5004617)

@@ -199,10 +199,9 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
             value: CardService.publishCardUA(publishDoc, context.activity.value.action.data.userIds)
           });
         }
-          break;
+        break;
     }
-    // ??
-    const card = CardService.reviewedCard(doc);
+    const card = CardService.reviewedCardUA(doc);
     return Promise.resolve({
       statusCode: StatusCodes.OK,
       type: 'application/vnd.microsoft.card.adaptive',

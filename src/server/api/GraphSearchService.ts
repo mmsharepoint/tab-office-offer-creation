@@ -2,7 +2,7 @@ import Axios, { AxiosRequestConfig } from "axios";
 import * as debug from 'debug';
 import { IOfferDocument } from "../../model/IOfferDocument";
 
-const log = debug('graphRouter');
+const log = debug('msteams');
 
 export default class GraphSearchService {
   public async getFiles(token: string): Promise<IOfferDocument[]> {  
@@ -62,7 +62,7 @@ export default class GraphSearchService {
                   config
       )
       .then((response) => {
-        console.log(response.data);
+        log(response.data);
       })
       .catch((error) => {
         log(error);
@@ -81,7 +81,7 @@ export default class GraphSearchService {
               config
     )
     .then((response) => {
-      console.log(response.data);
+      log(response.data);
       const item: IOfferDocument = {
         id: itemID,
         fileId: response.data.driveItem.id,
@@ -187,12 +187,12 @@ export default class GraphSearchService {
                         Authorization: `Bearer ${accessToken}`
                     }})
                     .then(response => {
-                      console.log(response.data);
-                        const respFile = { data: response.data, name: `${fileName}.pdf`, size: response.data.length };
-                        return respFile;
+                      log(response.data);
+                      const respFile = { data: response.data, name: `${fileName}.pdf`, size: response.data.length };
+                      return respFile;
                     }).catch(err => {
-                      console.log(err);
-                        return null;
+                      log(err);
+                      return null;
                     });
   }
 
@@ -239,7 +239,7 @@ export default class GraphSearchService {
                   config
       )
       .then((response) => {
-        console.log(response.data);
+        log(response.data);
       })
       .catch((error) => {
         log(error);
