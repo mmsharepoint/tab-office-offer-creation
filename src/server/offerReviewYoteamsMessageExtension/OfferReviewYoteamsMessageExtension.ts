@@ -37,10 +37,14 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
       return Promise.resolve(composeExtension);
     }
     let memberIDs: string[] = [];
-    const memberResponse = await TeamsInfo.getPagedMembers(context, 60, '');      
-    memberResponse.members.forEach((m) => {
-      memberIDs.push(m.id!);
-    });
+    // Members only available in Teams
+    if (context.activity.channelId === 'msteams') {
+      const memberResponse = await TeamsInfo.getPagedMembers(context, 60, '');      
+      memberResponse.members.forEach((m) => {
+        memberIDs.push(m.id!);
+      });
+    }
+    log(context.activity.value);
     if (query.commandId === 'offerReviewYoteamsMessageExtension') {
       let documents: IOfferDocument[] = [];
       if (query.parameters && query.parameters[0] && query.parameters[0].name === "initialRun") {
