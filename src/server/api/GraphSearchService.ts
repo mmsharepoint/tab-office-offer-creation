@@ -5,12 +5,16 @@ import { IOfferDocument } from "../../model/IOfferDocument";
 const log = debug('msteams');
 
 export default class GraphSearchService {
-  public async getFiles(token: string): Promise<IOfferDocument[]> {  
+  public async getFiles(token: string, query: string): Promise<IOfferDocument[]> {
+    let queryString = 'ContentTypeID:0x0101003656A003937692408E62ADAA56A5AEEF*';
+    if (query !== "")  {
+      queryString += ` AND ${query}`;
+    }
     const searchResponse = {
       requests: [
         { entityTypes: ['driveItem'],
           query: {
-            queryString: 'ContentTypeID:0x0101003656A003937692408E62ADAA56A5AEEF*'
+            queryString: queryString
           }
         }
       ]};

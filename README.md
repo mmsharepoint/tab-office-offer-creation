@@ -14,6 +14,10 @@ App live in action inside Teams using messaging extension
 
 ![App live in action inside Teams using messaging extension](assets/31CreateReviewCard.gif)
 
+App live in action inside **Outlook** using messaging extension
+
+![App live in action inside Outlook using messaging extension](assets/32CreateReviewCard_Outlook.gif)
+
 For further details see the author's [blog series](https://mmsharepoint.wordpress.com/2022/12/28/a-sharepoint-document-generator-as-microsoft-365-app-i-yoteams/)
 
 ## Prerequisites

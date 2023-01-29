@@ -47,9 +47,12 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
     log(context.activity.value);
     if (query.commandId === 'offerReviewYoteamsMessageExtension') {
       let documents: IOfferDocument[] = [];
-      if (query.parameters && query.parameters[0] && query.parameters[0].name === "initialRun") {
-        const controller = new GraphSearchService();
-        documents = await controller.getFiles(tokenResponse.token);        
+      const controller = new GraphSearchService();
+      if (query.parameters && query.parameters[0] && query.parameters[0].name === "initialRun") {        
+        documents = await controller.getFiles(tokenResponse.token, "");
+      }
+      else if (query.parameters && query.parameters[0] && query.parameters[0].value !== "") {
+        documents = await controller.getFiles(tokenResponse.token, query.parameters[0].value);
       }
       documents.forEach((doc) => {
         const card = CardFactory.adaptiveCard(CardService.reviewCardUA(doc, memberIDs));
@@ -71,9 +74,12 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
     
     if (query.commandId === 'offerPublishYoteamsMessageExtension') {
       let documents: IOfferDocument[] = [];
-      if (query.parameters && query.parameters[0] && query.parameters[0].name === "initialRun") {
-        const controller = new GraphSearchService();
-        documents = await controller.getFiles(tokenResponse.token);        
+      const controller = new GraphSearchService();
+      if (query.parameters && query.parameters[0] && query.parameters[0].name === "initialRun") {        
+        documents = await controller.getFiles(tokenResponse.token, "");        
+      }
+      else if (query.parameters && query.parameters[0] && query.parameters[0].value !== "") {
+        documents = await controller.getFiles(tokenResponse.token, query.parameters[0].value);
       }
       documents.forEach((doc) => {
         const card = CardFactory.adaptiveCard(CardService.publishCardUA(doc, memberIDs));
