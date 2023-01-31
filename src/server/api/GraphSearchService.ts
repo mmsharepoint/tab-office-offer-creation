@@ -61,7 +61,7 @@ export default class GraphSearchService {
         OfferingReviewedDate: new Date().toISOString(),
         OfferingReviewerLookupId: userLookupID
       };  
-      Axios.patch(requestUrl, 
+      await Axios.patch(requestUrl, 
                   fieldValueSet,
                   config
       )

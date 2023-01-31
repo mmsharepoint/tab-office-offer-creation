@@ -128,7 +128,7 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
   public async onActionExecute(context: TurnContext): Promise<AdaptiveCardResponseBody> {
     console.log(context);
     console.log(context.activity.value);
-    const doc: IOfferDocument = context.activity.value.action.data.doc as IOfferDocument;
+    let doc: IOfferDocument = context.activity.value.action.data.doc as IOfferDocument;
     if (typeof doc.modified === 'string') {
       doc.modified = new Date(doc.modified);
     }
@@ -142,9 +142,21 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
     // Get user's Email from the token (as the context.activity only offers display name)
     const decoded: { [key: string]: any; } = jwtDecode(tokenResponse.token) as { [key: string]: any; };
     const controller = new GraphSearchService();
+    let card;
     switch (context.activity.value.action.verb) {
       case 'review':
         await controller.reviewItem(tokenResponse.token, doc.id, decoded.upn!);
+        doc = await controller.getItem(tokenResponse.token, doc.id)
+          .catch(e => { 
+            console.log(e);
+            return doc; // Use card's doc instead
+        });
+        if (doc.reviewer !== "") {
+          card = CardService.reviewedCardUA(doc);
+        }
+        else {
+          card = CardService.reviewCardUA(doc, context.activity.value.action.data.userIds);
+        }
         break;
       case 'alreadyreviewed':
         let currentDoc: IOfferDocument;
@@ -154,23 +166,10 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
             return doc; // Use card's doc instead
         });
         if (typeof currentDoc.reviewer !== 'undefined') {
-          return Promise.resolve({
-            statusCode: StatusCodes.OK,
-            type: 'application/vnd.microsoft.card.adaptive',
-            value: CardService.reviewedCardUA(currentDoc)
-          });
+          card = CardService.reviewedCardUA(currentDoc);
         }
         else {
-          // let memberIDs: string[] = [];
-          // const memberResponse = await TeamsInfo.getPagedMembers(context, 60, '');      
-          // memberResponse.members.forEach((m) => {
-          //   memberIDs.push(m.id!);
-          // });
-          return Promise.resolve({
-            statusCode: StatusCodes.OK,
-            type: 'application/vnd.microsoft.card.adaptive',
-            value: CardService.reviewCardUA(currentDoc, context.activity.value.action.data.userIds)
-          });
+          card = CardService.reviewCardUA(currentDoc, context.activity.value.action.data.userIds);
         }
         break;
       case 'publish':
@@ -181,12 +180,7 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
             return doc; // Use card's doc instead
         });
         finalDoc.url = publishedFileUrl;
-        const card = CardService.publishedCardUA(finalDoc);
-        return Promise.resolve({
-          statusCode: StatusCodes.OK,
-          type: 'application/vnd.microsoft.card.adaptive',
-          value: card
-        });
+        card = CardService.publishedCardUA(finalDoc);
         break;
       case 'alreadypublished':
         let publishDoc: IOfferDocument;
@@ -196,22 +190,13 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
             return doc; // Use card's doc instead
         });
         if (typeof publishDoc.publisher !== 'undefined') {
-          return Promise.resolve({
-            statusCode: StatusCodes.OK,
-            type: 'application/vnd.microsoft.card.adaptive',
-            value: CardService.publishedCardUA(publishDoc)
-          });
+          card = CardService.publishedCardUA(publishDoc);
         }
         else {
-          return Promise.resolve({
-            statusCode: StatusCodes.OK,
-            type: 'application/vnd.microsoft.card.adaptive',
-            value: CardService.publishCardUA(publishDoc, context.activity.value.action.data.userIds)
-          });
+          card = CardService.publishCardUA(publishDoc, context.activity.value.action.data.userIds);
         }
         break;
     }
-    const card = CardService.reviewedCardUA(doc);
     return Promise.resolve({
       statusCode: StatusCodes.OK,
       type: 'application/vnd.microsoft.card.adaptive',
