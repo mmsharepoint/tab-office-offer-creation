@@ -45,9 +45,9 @@ export default class GraphSearchService {
       });
   }
 
-  public async reviewItem(token: string, itemID: string, user: string): Promise<void> {
+  public async reviewItem(token: string, itemID: string, user: string, userDisplayName: string): Promise<IOfferDocument> {
     const currentItem = await this.getItem(token, itemID);
-    if (currentItem.reviewer !== '') {
+    if (currentItem.reviewer === '') {
       let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);
       // Get user LookupID
       const userInfoListID = await this.getUserInfoListID(token, requestUrl);
@@ -60,17 +60,31 @@ export default class GraphSearchService {
       const fieldValueSet = {
         OfferingReviewedDate: new Date().toISOString(),
         OfferingReviewerLookupId: userLookupID
-      };  
-      await Axios.patch(requestUrl, 
-                  fieldValueSet,
-                  config
-      )
-      .then((response) => {
-        log(response.data);
-      })
-      .catch((error) => {
+      };
+      try {
+        const response = await Axios.patch(requestUrl, 
+          fieldValueSet,
+          config
+        );
+        const reviewedDoc: IOfferDocument = {
+          name: response.data.Title,
+          author: currentItem.author,
+          description: response.data.OfferingDescription,
+          id: response.data.id,
+          modified: new Date(response.data.Modified),
+          url: currentItem.url,
+          reviewedOn: new Date(response.data.OfferingReviewedDate),
+          reviewer: userDisplayName
+        }
+        return reviewedDoc;
+      }
+      catch(error) {
         log(error);
-      });
+        return currentItem;
+      }
+    }
+    else {
+      return currentItem;
     }
   }
 
@@ -94,9 +108,9 @@ export default class GraphSearchService {
         url: response.data.webUrl,
         author: response.data.fields.Author,
         modified: new Date(response.data.lastModifiedDateTime),
-        reviewer: response.data.fields.OfferingReviewer ? response.data.fields.OfferingReviewer : undefined,
+        reviewer: response.data.fields.OfferingReviewer ? response.data.fields.OfferingReviewer : '',
         reviewedOn: response.data.fields.OfferingReviewedDate ? new Date(response.data.fields.OfferingReviewedDate) : undefined,
-        publisher: response.data.fields.OfferingSubmitter ? response.data.fields.OfferingSubmitter : undefined,
+        publisher: response.data.fields.OfferingSubmitter ? response.data.fields.OfferingSubmitter : '',
         publishedOn: response.data.fields.SubmittedOn ? new Date(response.data.fields.SubmittedOn) : undefined,
         publishedFileUrl: response.data.fields.PublishedURL ? response.data.fields.PublishedURL : ''
       }
@@ -108,14 +122,14 @@ export default class GraphSearchService {
     });
   }
 
-  public async publishItem(token: string, fileName: string, itemID: string, fileID: string, user: string): Promise<string> {
+  public async publishItem(token: string, fileName: string, itemID: string, fileID: string, user: string, userDisplayName: string): Promise<IOfferDocument> {
     let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);
     let driveRequestUrl = requestUrl.split('/lists')[0];
     driveRequestUrl += `/drive`;
     const pdfFile = await this.downloadTmpFileAsPDF(fileID, driveRequestUrl, fileName, token);
     const webUrl = await this.uploadFileToTargetSite(pdfFile, token, driveRequestUrl);
-    await this.updatePublishedItem(token, itemID, user, webUrl);
-    return webUrl;
+    const updatedItem = await this.updatePublishedItem(token, itemID, user, webUrl, userDisplayName);
+    return updatedItem;
   }
 
   private async getSiteAndListByPath (accessToken: string, siteUrl: string): Promise<string> {
@@ -223,8 +237,10 @@ export default class GraphSearchService {
     }
   }
 
-  private async updatePublishedItem (token: string, itemID: string, user: string, publishedFileUrl: string): Promise<void> {
-    let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);
+  private async updatePublishedItem (token: string, itemID: string, user: string, publishedFileUrl: string, userDisplayName: string): Promise<IOfferDocument> {
+    const currentItem = await this.getItem(token, itemID);
+    if (currentItem.publisher === '') {
+      let requestUrl: string = await this.getSiteAndListByPath(token, process.env.SiteUrl!);
       // Get user LookupID
       const userInfoListID = await this.getUserInfoListID(token, requestUrl);
       const userLookupID = await this.getUserLookupID(token, requestUrl, userInfoListID, user);
@@ -237,16 +253,34 @@ export default class GraphSearchService {
         SubmittedOn: new Date().toISOString(),
         OfferingSubmitterLookupId: userLookupID,
         PublishedURL: publishedFileUrl
-      };  
-      Axios.patch(requestUrl, 
-                  fieldValueSet,
-                  config
-      )
-      .then((response) => {
-        log(response.data);
-      })
-      .catch((error) => {
+      };
+      try {
+        const response = await Axios.patch(requestUrl, 
+          fieldValueSet,
+          config
+        );
+        const publishedDoc: IOfferDocument = {
+          name: response.data.Title,
+          author: currentItem.author,
+          description: response.data.OfferingDescription,
+          id: response.data.id,
+          modified: new Date(response.data.Modified),
+          url: currentItem.url,
+          reviewedOn: new Date(response.data.OfferingReviewedDate),
+          reviewer: currentItem.reviewer,
+          publishedFileUrl: publishedFileUrl,
+          publishedOn: new Date(response.data.SubmittedOn),
+          publisher: userDisplayName
+        }
+        return publishedDoc;
+      }
+      catch(error) {
         log(error);
-      });
+        return currentItem;
+      }
+    }
+    else {
+      return currentItem;
+    }
   }
 }

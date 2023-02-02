@@ -106,25 +106,6 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
     } as MessagingExtensionResult);
   }
 
-  public async onCardButtonClicked(context: TurnContext, value: any): Promise<void> {
-    // Handle the Action.Submit action on the adaptive card
-    if (value.action === "reviewed") {
-      log(`I got this ${value.id}`);
-      const adapter: any = context.adapter;
-      const magicCode = (value.state && Number.isInteger(Number(value.state))) ? value.state : '';        
-      const tokenResponse = await adapter.getUserToken(context, this.connectionName, magicCode);
-      if (!tokenResponse || !tokenResponse.token) {
-        // There is no token, so the user has not signed in yet.            
-        return Promise.reject();
-      }
-      // Get user's Email from the token (as the context.activity only offers display name)
-      const decoded: { [key: string]: any; } = jwtDecode(tokenResponse.token) as { [key: string]: any; };
-      const controller = new GraphSearchService();
-      await controller.reviewItem(tokenResponse.token, value.id, decoded.upn!);
-    }
-    return Promise.resolve();
-  }
-
   public async onActionExecute(context: TurnContext): Promise<AdaptiveCardResponseBody> {
     console.log(context);
     console.log(context.activity.value);
@@ -145,12 +126,7 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
     let card;
     switch (context.activity.value.action.verb) {
       case 'review':
-        await controller.reviewItem(tokenResponse.token, doc.id, decoded.upn!);
-        doc = await controller.getItem(tokenResponse.token, doc.id)
-          .catch(e => { 
-            console.log(e);
-            return doc; // Use card's doc instead
-        });
+        doc = await controller.reviewItem(tokenResponse.token, doc.id, decoded.upn!, context.activity.from.name);        
         if (doc.reviewer !== "") {
           card = CardService.reviewedCardUA(doc);
         }
@@ -162,10 +138,10 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
         let currentDoc: IOfferDocument;
         currentDoc = await controller.getItem(tokenResponse.token, doc.id)
           .catch(e => { 
-            console.log(e);
+            log(e);
             return doc; // Use card's doc instead
         });
-        if (typeof currentDoc.reviewer !== 'undefined') {
+        if (currentDoc.reviewer !== '') {
           card = CardService.reviewedCardUA(currentDoc);
         }
         else {
@@ -173,23 +149,22 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
         }
         break;
       case 'publish':
-        const publishedFileUrl = await controller.publishItem(tokenResponse.token, doc.name, doc.id, doc.fileId!, decoded.upn!);
-        let finalDoc = await controller.getItem(tokenResponse.token, doc.id)
-          .catch(e => { 
-            console.log(e);
-            return doc; // Use card's doc instead
-        });
-        finalDoc.url = publishedFileUrl;
-        card = CardService.publishedCardUA(finalDoc);
+        const finalDoc = await controller.publishItem(tokenResponse.token, doc.name, doc.id, doc.fileId!, decoded.upn!, context.activity.from.name);        
+        if (finalDoc.publisher !== "") {
+          card = CardService.publishedCardUA(doc);
+        }
+        else {
+          card = CardService.publishCardUA(doc, context.activity.value.action.data.userIds);
+        }
         break;
       case 'alreadypublished':
         let publishDoc: IOfferDocument;
         publishDoc = await controller.getItem(tokenResponse.token, doc.id)
           .catch(e => { 
-            console.log(e);
+            log(e);
             return doc; // Use card's doc instead
         });
-        if (typeof publishDoc.publisher !== 'undefined') {
+        if (publishDoc.publisher !== '') {
           card = CardService.publishedCardUA(publishDoc);
         }
         else {
