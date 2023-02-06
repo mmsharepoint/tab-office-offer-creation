@@ -38,13 +38,14 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
     }
     let memberIDs: string[] = [];
     // Members only available in Teams
+    log(context.activity.channelId);
     if (context.activity.channelId === 'msteams') {
       const memberResponse = await TeamsInfo.getPagedMembers(context, 60, '');      
       memberResponse.members.forEach((m) => {
         memberIDs.push(m.id!);
       });
     }
-    log(context.activity.value);
+    log(memberIDs);
     if (query.commandId === 'offerReviewYoteamsMessageExtension') {
       let documents: IOfferDocument[] = [];
       const controller = new GraphSearchService();
@@ -74,12 +75,12 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
     
     if (query.commandId === 'offerPublishYoteamsMessageExtension') {
       let documents: IOfferDocument[] = [];
-      const controller = new GraphSearchService();
+      const graphService = new GraphSearchService();
       if (query.parameters && query.parameters[0] && query.parameters[0].name === "initialRun") {        
-        documents = await controller.getFiles(tokenResponse.token, "");        
+        documents = await graphService.getFiles(tokenResponse.token, "");        
       }
       else if (query.parameters && query.parameters[0] && query.parameters[0].value !== "") {
-        documents = await controller.getFiles(tokenResponse.token, query.parameters[0].value);
+        documents = await graphService.getFiles(tokenResponse.token, query.parameters[0].value);
       }
       documents.forEach((doc) => {
         const card = CardFactory.adaptiveCard(CardService.publishCardUA(doc, memberIDs));
@@ -122,11 +123,11 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
     }
     // Get user's Email from the token (as the context.activity only offers display name)
     const decoded: { [key: string]: any; } = jwtDecode(tokenResponse.token) as { [key: string]: any; };
-    const controller = new GraphSearchService();
+    const graphService = new GraphSearchService();
     let card;
     switch (context.activity.value.action.verb) {
       case 'review':
-        doc = await controller.reviewItem(tokenResponse.token, doc.id, decoded.upn!, context.activity.from.name);        
+        doc = await graphService.reviewItem(tokenResponse.token, doc.id, decoded.upn!, context.activity.from.name);        
         if (doc.reviewer !== "") {
           card = CardService.reviewedCardUA(doc);
         }
@@ -136,7 +137,7 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
         break;
       case 'alreadyreviewed':
         let currentDoc: IOfferDocument;
-        currentDoc = await controller.getItem(tokenResponse.token, doc.id)
+        currentDoc = await graphService.getItem(tokenResponse.token, doc.id)
           .catch(e => { 
             log(e);
             return doc; // Use card's doc instead
@@ -149,7 +150,7 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
         }
         break;
       case 'publish':
-        const finalDoc = await controller.publishItem(tokenResponse.token, doc.name, doc.id, doc.fileId!, decoded.upn!, context.activity.from.name);        
+        const finalDoc = await graphService.publishItem(tokenResponse.token, doc.name, doc.id, doc.fileId!, decoded.upn!, context.activity.from.name);        
         if (finalDoc.publisher !== "") {
           card = CardService.publishedCardUA(doc);
         }
@@ -159,7 +160,7 @@ export default class OfferReviewYoteamsMessageExtension implements IMessagingExt
         break;
       case 'alreadypublished':
         let publishDoc: IOfferDocument;
-        publishDoc = await controller.getItem(tokenResponse.token, doc.id)
+        publishDoc = await graphService.getItem(tokenResponse.token, doc.id)
           .catch(e => { 
             log(e);
             return doc; // Use card's doc instead

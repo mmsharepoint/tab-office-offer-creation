@@ -32,6 +32,7 @@ export const OfferCreationTab = () => {
       }).then(result => {
         if (result.data.fileUrl) {
           setOfferCreated(true);
+          setOfferFileUrl(result.data.fileUrl);
         }     
       })
       .catch((error) => {
