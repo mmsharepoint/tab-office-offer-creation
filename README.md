@@ -77,13 +77,15 @@ Outlook desktop, mobile	d3590ed6-52b3-4102-aeff-aad2292ab01c, Outlook web bc59ab
     - add the secret to TAB_APP_SECRET=
 - Since messaging extensions utilize the Azure Bot Framework, you will need to register a new bot. 
 [These instructions](https://learn.microsoft.com/en-us/microsoftteams/platform/sbs-messagingextension-searchcommand?tabs=latestversionofvisualstudio&tutorial-step=3&WT.mc_id=M365-MVP-5004617) provide options for registering with or without an Azure subscription. 
-  - Be sure to enable the Microsoft Teams AND Outlook bot channel so your solution can communicate with Microsoft Teams AND Outlook
+  - Be sure to enable the Microsoft Teams, Outlook AND Microsoft 365 Extensions bot channel so your solution can communicate with Microsoft Teams AND Outlook
   - For local testing, set the messaging endpoint to the https URL returned by ngrok plus "/api/messages" otherwise to your Azure App host url
 - Also add the bot's app ID and its secret to .env (taken from .env-sample) as MICROSOFT_APP_ID= and 
     - add the secret to MICROSOFT_APP_PASSWORD= 
 - In the Bot itself add the app id and secret as "GraphConnection" with app id, tenant id, secret and scope=https://graph.microsoft.com/.default
     - Use Azure Active Directory V2 as service provider
-    - Use the configured App URI cobnfigured also to your **bot's app registration** in the format api://{NGrok-Url}/{App ID} as Token Exchange URL
+    - Use the configured App URI configured also to your **bot's app registration** in the format api://{NGrok-Url}/{App ID} as Token Exchange URL
+    - Add the client IDs for Teams App and Teams Web App 1fec8e78-bce4-4aaf-ab1b-5451cc387264 and 5e3ce6c0-2b1f-4285-8d4b-75ee78787346
+    - Also add the client IDs for Outlook desktop, mobile d3590ed6-52b3-4102-aeff-aad2292ab01c, Outlook web bc59ab01-8403-45c6-8796-ac3ef710b3e3, 00000002-0000-0ff1-ce00-000000000000
 
 
 ## Features
@@ -94,6 +96,7 @@ This is a Teams personal Tab app to act as a Microsoft 365 across application (T
 * Using O-B-O flow secure and totally in backend to retrieve and store data via Microsoft SharePoint
 * Using SharePoint Rest API inside NodeJS application
 * [Extend Teams apps across Microsoft 365](https://docs.microsoft.com/en-us/microsoftteams/platform/m365-apps/overview?WT.mc_id=M365-MVP-5004617)
+* [Use Universal Actions (UAM) in search based message extensions](https://learn.microsoft.com/en-us/microsoftteams/platform/messaging-extensions/how-to/search-commands/universal-actions-for-search-based-message-extensions?WT.mc_id=M365-MVP-5004617)
 * [Use FluentUI React Northstar Input, Datepicker, Dropdown, DropdownItem, DropdownItemProps, DropdownProps, Loader, TextArea](https://fluentsite.z22.web.core.windows.net/)
 
 
